@@ -3,7 +3,6 @@ class myTable
 	constructor(options)
 	{
 		this.options=options;
-			
 	}
 
 	//Function for adding the headers in the table
