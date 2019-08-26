@@ -3,109 +3,149 @@ class myTable
 	constructor(options)
 	{
 		this.options=options;
-		
+			
 	}
 
-	addRowsInterface()
+	//Function for adding the headers in the table
+	addHeaders(coldefs)
 	{
-		console.log("THIS RAN 1st time");
-		    
-		     
-		/*this.options.data.forEach((element, i) => {
-                //console.log(element, i)
-                var t = document.getElementById("dashTable");
-                var r = document.createElement("TR");
-                
-                r.innerHTML = `
-                                             <tr>
-                                                 <th scope="row">${element.id}</th>
-                                                <td>${element.colData[0]}</td>
-                                                <td>${element.colData[1]}</td>
-                                                <td> <input type="text" value = ${element.colData[2]}></td>
+		
+		var t = document.getElementById("dashTable");
+        var tr = document.createElement("TR");
 
-                                                <td><input type="checkbox" ${element.colData[3] ? "checked" : ""} > </td>
-                                            </tr>
-                                    `
-                                    console.log(r)
-                t.querySelector("tbody").appendChild(r);});*/
+        for (var j = 0; j < coldefs.length; j++) 
+        {
 
-		for(let i=this.options.data.length-1;i<this.options.data.length;i++)
-		{
-			var t = document.getElementById("dashTable");
+    		var th = document.createElement('TH'); //column
+    		var text = document.createTextNode(coldefs[j].label); //cell
+    		th.style.width = coldefs[j].width;
+    		th.appendChild(text);
+    		tr.appendChild(th);
+    	}
+		t.querySelector('thead').appendChild(tr)
+	}
+
+	//Function for changing the interface 
+	interfaceChange(i)
+	{
+		var t = document.getElementById("dashTable");
                 var r = document.createElement("TR");
+              
                 
                 r.innerHTML = `
                                              <tr>
                                                  <th scope="row">${this.options.data[i].id}</th>
-                                                <td>${this.options.data[i].colData[0]}</td>
-                                                <td>${this.options.data[i].colData[1]}</td>
-                                                <td> <input type="text" value = ${this.options.data[i].colData[2]}></td>
+                                                <td>${this.options.data[i].colData['first_name']}</td>
+                                                <td>${this.options.data[i].colData['last_name']}</td>
+                                                <td> <input type="text" value = ${this.options.data[i].colData['email']}></td>
 
-                                                <td><input type="checkbox" ${this.options.data[i].colData[3] ? "checked" : ""} > </td>
+                                                <td><input type="checkbox" ${this.options.data[i].colData['checkBox'] ? "checked" : ""} > </td>
                                             </tr>
                                     `
-                                    console.log(r)
+
+
                 t.querySelector("tbody").appendChild(r);
 
-		}
-
 	}
 
-	addRows(colData)
+	//function for changing the interface after addition
+	addRowsInterface()
 	{
-		//Checking duplicacy through rowID
-	/*	this.options.data.forEach((element) => {
-			if(element.id == id)
-			{
-				alert("Duplicate ID, Please enter the details with a new id");
-				this.addRowsInterface();
-				return null;
-			}
-			else
-			{
-					this.options.data.push({id: id,colData:colData});
-					this.addRowsInterface();
-					console.log("rows were added",this.options);
-			}
-		});*/
+		
+		for(let i=this.options.data.length-1;i<this.options.data.length;i++)
+		{
+			this.interfaceChange(i);
+		}
+	}
 
-		this.options.data.push(
+	//Function for adding the rows
+	addRows(...colData)
+	{
+		for(let elem of colData)
+		{
+			this.options.data.push(
 		{
 			id:this.options.data.length+1,
-			colData:colData
+			colData:elem
 		});
-		this.addRowsInterface();
-	
-
+			//console.log("ADDD=====>", this.options.data);
+			this.addRowsInterface();
+		}		
 	}
 
-	deleteRows(rowId)
+	//Function for deleting the rows
+	deleteRows(...rowId)
 	{
-	console.log('Delete the element');
-		
-
+		let t = document.getElementsByTagName('tr');
+		for(let elem of rowId)
+		{
+			for(let j=0;j<this.options.data.length;j++)
+			{
+				if(elem == this.options.data[j].id)
+				{
+					this.options.data.splice(j,1);
+				
+					t[elem].innerHTML='';	
+				}
+			}
+		}
 	}
 
-	updateRows(rowId,data)
+	//function for updating the rows
+	updateRows(...args)
 	{
-		console.log("Following rows were deleted");
+		let t = document.getElementsByTagName('tr');
+		for(let elem of args)
+		{
+			//console.log(elem);
+			this.options.data.forEach((x) => {
+				if(elem.id == x.id)
+				{
+					//console.log(x);
+
+					for (let keys in elem.data)
+					{
+						x.colData[keys] = elem.data[keys];
+					}
+
+					//console.log(x);
+					t[elem.id].innerHTML=` <tr>
+                                                 <th scope="row">${x.id}</th>
+                                                <td>${x.colData['first_name']}</td>
+                                                <td>${x.colData['last_name']}</td>
+                                                <td> <input type="text" value = ${x.colData['email']}></td>
+
+                                                <td><input type="checkbox" ${x.colData['checkBox'] ? "checked" : ""} > </td>
+                                            </tr>`;
+					
+				}
+			});
+		}		
 	}
 }
+
 
 
 let options = {
-	coldefs: [{label: 'Text Columns',width: '40%',type: 'text'},
-			{label: 'Input Column',width: '60%',type: 'input'},
-			{label: 'Checkbox Column',width: '30px',type: 'checkbox'}],
+	coldefs:[
+	{label:'#',type:'text',id:'id', width:'10%'},
+	{label:'First Name',type:'text',id:'first_name',width:'20%'},
+	{label:'Last Name',type:'text',id:'last_name',width:'20%'},
+	{label:'Email',type:'input',id:'email',width:'30%'},
+	{label:'Checkbox', type:'checkbox',id:'checkBox',width:'20%'}],
 	data:[]
-}
+};
 
 
 
 var Table= new myTable (options);
+Table.addHeaders(options.coldefs)
 
-Table.addRows(['Value2', 'value3','value3@gmail.com', true]);
-Table.addRows(['Value2', 'value3','value3@gmail.com', false]);
-Table.addRows(['Value2', 'value3','value3@gmail.com', true]);
-Table.addRows(['Value2', 'value3','value3@gmail.com', false]);
-console.log(Table);
+Table.addRows({first_name:'Value 1', last_name:'value1', email:'value1@gmail.com', checkBox:true},{first_name:'Value 2', last_name:'value2', email:'value2@gmail.com', checkBox:true});
+Table.addRows({first_name:'Value 3', last_name:'value3', email:'value3@gmail.com', checkBox:false});
+Table.addRows({first_name:'Value 4', last_name:'value4', email:'value3@gmail.com', checkBox:false},{first_name:'Value 5', last_name:'value5', email:'value5@gmail.com', checkBox:true});
+
+
+//Table.deleteRows(3,1);
+
+Table.updateRows({id:1, data:{ checkBox:true} },{id:2, data:{ email:'value_5@gmail.com',checkBox:false} },{id:5, data:{ email:'value_5@gmail.com'} });
